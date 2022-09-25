@@ -1,0 +1,43 @@
+- name: create user
+  user:
+    name: minio
+    state: present
+- name: copy env file
+  template:
+    src: minio.conf
+    dest: /etc/default/minio
+    owner: minio
+    group: minio
+    mode: 644
+- name: copy minio package
+  copy:
+    src: minio
+    dest: /usr/local/bin/minio
+    mode: 755
+- name: copy systemd service file
+  copy:
+    src: minio.service
+    dest: /etc/systemd/system/minio.service
+
+  
+- name: prepare data directory
+  file:
+    path: /opt/minio/data1
+    state: directory
+    owner: minio
+    group: minio
+
+- name: start service
+  service:
+    name: minio
+    state: started
+  #ignore_errors: yes
+  #register: result
+  tags: start_minio
+
+#- name: inotify daemon-reload
+#  debug:
+#    msg: "{{ result }}"
+#  notify: daemon-reload
+#  #when: 
+#  #  "'daemon-reload' in result.stderr"
